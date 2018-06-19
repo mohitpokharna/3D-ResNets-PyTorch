@@ -77,6 +77,39 @@ class TemporalCenterCrop(object):
         return out
 
 
+class TemporalCenterSubsample(object):
+    """Temporally subsamples the given frame indices around the center.
+    
+    Args:
+        size (int): Desired output size of the subsample.
+    """
+
+    def __init__(self, size):
+        self.size = size
+
+    def __call__(self, frame_indices):
+        """
+        Args:
+            frame_indices (list): frame indices to be subsampled.
+        Returns:
+            list: Subsampled frame indices.
+        """
+        
+        center_index = len(frame_indices) // 2
+        interframe_dist = int(len(frame_indices) // self.size)
+        begin_index = max(0, center_index - (interframe_dist * (self.size // 2)))
+        end_index = min(begin_index + (self.size * interframe_dist), len(frame_indices))
+
+        out = frame_indices[begin_index:end_index:interframe_dist]
+
+        for index in out:
+            if len(out) >= self.size:
+                break
+            out.append(index)
+
+        return out
+
+
 class TemporalRandomCrop(object):
     """Temporally crop the given frame indices at a random location.
 
